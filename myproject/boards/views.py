@@ -117,7 +117,7 @@ def reply_topic(request, pk, topic_pk):
             topic_post_url = '{url}?page={page}#{id}'.format(
                 url=topic_url,
                 id=post.pk,
-                page=topic.get_page_count()
+                page=1
             )
 
             return redirect(topic_post_url)
@@ -140,6 +140,5 @@ class PostUpdateView(UpdateView):
     def form_valid(self, form):
         post = form.save(commit=False)
         post.updated_by = self.request.user
-        post.updated_at = timezone.now()
         post.save()
         return redirect('topic_posts', pk=post.topic.board.pk, topic_pk=post.topic.pk)
