@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import Truncator
+from django.utils.html import mark_safe
+from markdown import markdown
 
 class Board(models.Model):
     name = models.CharField(max_length=30, unique=True)
@@ -23,6 +25,9 @@ class Topic(models.Model):
     starter = models.ForeignKey(User, related_name='topics',on_delete=models.CASCADE)
     views = models.PositiveIntegerField(default=0)
 
+    def get_last_ten_posts(self):
+        return self.posts.order_by('-created_at')[:10]
+
     def __str__(self):
         return self.subject
 
@@ -34,6 +39,9 @@ class Post(models.Model):
     updated_at = models.DateTimeField(null=True)
     created_by = models.ForeignKey(User, related_name='posts',on_delete=models.CASCADE)
     updated_by = models.ForeignKey(User, null=True, related_name='+',on_delete=models.CASCADE)
+
+    def get_message_as_markdown(self):
+        return mark_safe(markdown(self.message, safe_mode='escape'))
 
     def __str__(self):
         truncanted_message = Truncator(self.message)
